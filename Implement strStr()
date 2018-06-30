@@ -1,0 +1,44 @@
+def getnext(s):
+        next=[]
+        l=len(s)
+        next.append(-1)
+        next.append(0)
+        i=0
+        j=1
+        while(j<l-1):
+            if(-1==i or s[j]==s[i]):
+                next.append(s[i+1]==s[j+1] and next[i+1] or i+1)
+                i+=1
+                j+=1
+            else:
+                i=next[i]
+        return [l,next]
+class Solution(object):   
+    def strStr(self, haystack, needle):
+        """
+        :type haystack: str
+        :type needle: str
+        :rtype: int
+        使用KMP算法求解
+        模式串的每一位都有一个最长子串长度，即包括自身在内的，能匹配到模式串的最长长度。
+        右移一位，得到跳转表(next)，即与源串匹配失败时，应该跳转到模式串的哪一位，此时源串指针不变。
+        首先，根据模式串得到跳转表，用快、慢指针实现：若相等，快指针后一位的next为慢指针+1(未优化)；否则，慢指针跳转。
+        若慢指针跳转到-1，表示快指针后一位的next应该为0，可以与相等时的情况统一。
+        模式串与源串匹配时：若字符相等，指针同时后移一位；若不等，源串指针不变，模式串指针跳转。
+        若跳转后模式串指针为-1，表示应该从源串指针的后一位与模式串的头开始匹配，这样与相等时统一。
+        最后，next跳转表可以优化：在快、慢指针指向的字符相等时，比较快指针后一位和满指针后一位，若仍相等，快后一位的next应该为慢指针后一位的next。
+        代表的含义为：快指针后一位与源串比较，若不相等，则跳转至慢指针后一位；若两个位置的字符相等，应该继续跳转，直至不等。
+        对应赋值next时的多一次跳转。
+        """
+        n,next=getnext(needle)
+        if(0==n):
+            return 0
+        i=0
+        j=0
+        while(i<len(haystack) and j<n):
+            if(-1==j or haystack[i]==needle[j]):
+                i+=1
+                j+=1
+            else:
+                j=next[j]
+        return (i-j if j==n else -1)
